@@ -2,19 +2,23 @@
 Imports System.Collections
 Imports System.Data
 Imports System.Data.Common
+Imports System.Data.DataTable
+Imports System.Data.Odbc
+Imports System.Data.SqlClient
 Imports System.Drawing
 Imports System.EventArgs
 Imports System.Globalization
 Imports System.IO
+Imports System.Management
 Imports System.Net
 Imports System.Reflection
+Imports System.Runtime.InteropServices
+Imports System.Security.Principal
 Imports System.Text
+Imports System.Threading 'For Sleep
 Imports System.Windows.Forms
 Imports System.Windows.Forms.Application
 Imports System.Xml
-
-'Imports Microsoft.Office.Interop
-'Imports Microsoft.Office.Interop.Excel
 
 Public Class MergeLabelCode
     Inherits System.Windows.Forms.Form
@@ -247,9 +251,11 @@ Public Class MergeLabelCode
         Dim ArchiveDir As New DirectoryInfo(AppHtmlDir)
         Dim sTemplate As String = ""
         Dim tmpFN As String = ""
-        Dim Candiates(10000) As String
-        Dim inFile As Integer = 0
-        Dim numCandiates As Integer = 0
+        Dim sLine As String = ""
+        Dim strLine As String = ""
+        Dim m As Integer = 0
+        Dim n As Integer = 0
+        Dim idx As Integer = 0
 
         btnProcess.BackColor = Color.OrangeRed
 
@@ -331,27 +337,69 @@ Public Class MergeLabelCode
                     '#Else
                     'Dim xmlfn As String = ".\BCPartLabels.xml"
                     '#End If
-                    'C:\Visual Studio 2019\Projects\BCPartLabels\MainWindow.vb
+                    idx = 0
+                    sLine = ""
+                    Dim arrText As New ArrayList()
                     Do While Not sTemplate.Contains("#Else")
                         LogEvent("sTemplate: " & sTemplate)
+                        arrText.Add(sTemplate)
+                        idx += 1
                         sTemplate = sr.ReadLine
                         If sTemplate.Contains("BCLabels.xml") Then
                             sTemplate = Replace(sTemplate, "BCLabels.xml", "BCPartLabels.xml")
                         End If
-                        If sTemplate.Contains("#End If") Then Exit Do
-                        If Not sTemplate.Contains("#Else") Then WriteOutLine(sTemplate, tmpFN)
+                        If sTemplate.Contains("#End If") Then
+                            LogEvent("arrText Count: " & arrText.Count)
+                            For Each sLine In arrText
+                                WriteOutLine(sLine, tmpFN)
+                                LogEvent("arrText sLine(" & idx & ") " & sLine)
+                            Next
+                            LogEvent("idx: " & idx)
+                            idx = 0
+                            arrText = New ArrayList()
+                            Exit Do
+                        End If
+                        If sTemplate.Contains("#Else") Then
+                            LogEvent("arrText Count: " & arrText.Count)
+                            For Each sLine In arrText
+                                If sLine.Contains("#If DEBUG Then") Then Continue For
+                                If sLine.Contains("#Else") Then Exit For
+                                WriteOutLine(sLine, tmpFN)
+                                LogEvent("arrText sLine(" & idx & ") " & sLine)
+                                idx += 1
+                            Next
+                            LogEvent("idx: " & idx)
+                            idx = 0
+                            arrText = New ArrayList()
+                        End If
                     Loop
                     If sTemplate.Contains("#End If") Then
                         WriteOutLine(sTemplate, tmpFN)
+                        If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
+                            Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
+                        End If
                     Else
-                        If sTemplate.Contains("#Else") Then sTemplate = sr.ReadLine
+                        If sTemplate.Contains("#Else") Then
+                            sTemplate = sr.ReadLine
+                            If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
+                                Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
+                            End If
+                        End If
                     End If
                     LogEvent("sTemplate: " & sTemplate)
                     Do While Not sTemplate.Contains("#End If")
                         LogEvent("sTemplate: " & sTemplate)
                         sTemplate = sr.ReadLine
+                        If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
+                            Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
+                        End If
                     Loop
-                    If sTemplate.Contains("#End If") Then sTemplate = sr.ReadLine
+                    If sTemplate.Contains("#End If") Then
+                        sTemplate = sr.ReadLine
+                        If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
+                            Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
+                        End If
+                    End If
                     LogEvent("sTemplate: " & sTemplate)
                 End If
                 If sTemplate.Contains("If rbtnSO.Checked Then") Then
@@ -359,20 +407,69 @@ Public Class MergeLabelCode
                     'If rbtnSO.Checked Then
                     'Else
                     'End If
-                    'Do While sr.Peek() >= 0
+                    'C:\Visual Studio 2019\Projects\BCPartLabels\MainWindowBC.vb
+                    LogEvent("sTemplate: " & sTemplate)
+                    idx = 0
+                    n = InStr(sTemplate, "If")
+                    sLine = ""
+                    n += Len("If")
+                    sLine = sTemplate.Substring(0, n)
+                    sLine = Replace(sLine, "If", "End If")
+                    m = n + Len("End")
+                    LogEvent("m: " & m & " n: " & n & " sLine: [" & sLine & "]")
+                    strLine = Replace(sLine, "End If", "Else")
+                    LogEvent("strLine: [" & strLine & "]")
+                    Dim arrText As New ArrayList()
+                    Do While Not sTemplate.Substring(0, m).Equals(sLine)
+                        LogEvent("sTemplate: " & sTemplate)
+                        arrText.Add(sTemplate)
+                        idx += 1
+                        sTemplate = sr.ReadLine
+                        If sTemplate.Substring(0, (m - 1)).Equals(strLine) Then
+                            LogEvent("idx: " & idx)
+                            idx = 0
+                            arrText = New ArrayList()
+                        End If
+                    Loop
+                    'Do While Not sTemplate.Contains("sLine")
+                    '    If sTemplate.Contains(sLine) Then
+                    '        m = InStr(sTemplate, sLine)
+                    '    End If
                     'Loop
-                    'Do While sr.Peek() >= 0
-                    'Loop
+                    idx = 0
+                    arrText = New ArrayList()
                 End If
                 If sTemplate.Contains("If rbtnPart.Checked Then") Then
                     'Remove the rbtnPart.Checked part keeping only the Else part
                     'If rbtnPart.Checked Then
                     'Else
                     'End If
-                    'Do While sr.Peek() >= 0
+                    LogEvent("sTemplate: " & sTemplate)
+                    n = InStr(sTemplate, "If")
+                    sLine = ""
+                    n += Len("If")
+                    sLine = sTemplate.Substring(0, n)
+                    LogEvent("m: " & m & " n: " & n & " sLine: " & sLine)
+                    Dim arrText As New ArrayList()
+                    'Do While Not sTemplate.Contains("sLine")
+                    LogEvent("sTemplate: " & sTemplate)
+                    arrText.Add(sTemplate)
+                    idx += 1
+                    'sTemplate = sr.ReadLine
+                    If sTemplate.Contains(sLine) Then
+                        m = InStr(sTemplate, sLine)
+                    End If
                     'Loop
-                    'Do While sr.Peek() >= 0
+                    idx = 0
+                    arrText = New ArrayList()
+                    sLine = Replace(sLine, "Else", "Else If")
+                    'Do While Not sTemplate.Contains("sLine")
+                    If sTemplate.Contains(sLine) Then
+                        m = InStr(sTemplate, sLine)
+                    End If
                     'Loop
+                    idx = 0
+                    arrText = New ArrayList()
                 End If
 
                 WriteOutLine(sTemplate, tmpFN)
