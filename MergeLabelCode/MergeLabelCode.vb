@@ -136,7 +136,7 @@ Public Class MergeLabelCode
     Public Sub ImportXmlInit(ByRef fn As String, ByRef status As Boolean)
         Dim m_xmld As New XmlDocument
         Dim Parsing As String = "ImportXmlInit"
-        Dim n As Integer = 0
+        Dim iSL2 As Integer = 0
 
         Try
             If File.Exists(fn) Then
@@ -253,8 +253,8 @@ Public Class MergeLabelCode
         Dim tmpFN As String = ""
         Dim sLine As String = ""
         Dim strLine As String = ""
-        Dim m As Integer = 0
-        Dim n As Integer = 0
+        Dim iSL1 As Integer = 0
+        Dim iSL2 As Integer = 0
         Dim idx As Integer = 0
 
         btnProcess.BackColor = Color.OrangeRed
@@ -281,13 +281,14 @@ Public Class MergeLabelCode
             Do While sr.Peek() >= 0
                 sTemplate = sr.ReadLine
                 'LogEvent("sTemplate: " & sTemplate)
-                'If sTemplate.Trim().Equals(String.Empty) Then
-                '    'Set the value of ProgressBar
-                '    If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
-                '        Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
-                '    End If
-                '    Continue Do
-                'End If
+                If sTemplate.Trim().Equals(String.Empty) Then
+                    WriteOutLine(sTemplate, tmpFN)
+                    'Set the value of ProgressBar
+                    If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
+                        Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
+                    End If
+                    Continue Do
+                End If
                 If sTemplate.Contains("BCLabels.xml") Then
                     sTemplate = Replace(sTemplate, "BCLabels.xml", "BCPartLabels.xml")
                 End If
@@ -345,6 +346,11 @@ Public Class MergeLabelCode
                         arrText.Add(sTemplate)
                         idx += 1
                         sTemplate = sr.ReadLine
+                        LogEvent("sTemplate: " & sTemplate)
+                        'Set the value of ProgressBar
+                        If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
+                            Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
+                        End If
                         If sTemplate.Contains("BCLabels.xml") Then
                             sTemplate = Replace(sTemplate, "BCLabels.xml", "BCPartLabels.xml")
                         End If
@@ -381,6 +387,7 @@ Public Class MergeLabelCode
                     Else
                         If sTemplate.Contains("#Else") Then
                             sTemplate = sr.ReadLine
+                            LogEvent("sTemplate: " & sTemplate)
                             If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
                                 Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
                             End If
@@ -390,12 +397,14 @@ Public Class MergeLabelCode
                     Do While Not sTemplate.Contains("#End If")
                         LogEvent("sTemplate: " & sTemplate)
                         sTemplate = sr.ReadLine
+                        LogEvent("sTemplate: " & sTemplate)
                         If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
                             Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
                         End If
                     Loop
                     If sTemplate.Contains("#End If") Then
                         sTemplate = sr.ReadLine
+                        LogEvent("sTemplate: " & sTemplate)
                         If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
                             Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
                         End If
@@ -410,32 +419,44 @@ Public Class MergeLabelCode
                     'C:\Visual Studio 2019\Projects\BCPartLabels\MainWindowBC.vb
                     LogEvent("sTemplate: " & sTemplate)
                     idx = 0
-                    n = InStr(sTemplate, "If")
+                    iSL2 = InStr(sTemplate, "If")
                     sLine = ""
-                    n += Len("If")
-                    sLine = sTemplate.Substring(0, n)
-                    sLine = Replace(sLine, "If", "End If")
-                    m = n + Len("End")
-                    LogEvent("m: " & m & " n: " & n & " sLine: [" & sLine & "]")
-                    strLine = Replace(sLine, "End If", "Else")
+                    iSL2 += Len("If") - 1
+                    sLine = sTemplate.Substring(0, iSL2)
+                    sLine = Replace(sLine, "If", "End")
+                    iSL1 = iSL2 + Len("End") - 1
+                    LogEvent("iSL1: " & iSL1 & " iSL2: " & iSL2 & " sLine: [" & sLine & "]")
+                    strLine = Replace(sLine, "End", "Else")
                     LogEvent("strLine: [" & strLine & "]")
                     Dim arrText As New ArrayList()
-                    Do While Not sTemplate.Substring(0, m).Equals(sLine)
-                        LogEvent("sTemplate: " & sTemplate)
+                    Do While Not sTemplate.Substring(0, (iSL1 - 1)).Equals(sLine)
+                        LogEvent("sTemplate(0, (iSL1 - 1)): " & sTemplate.Substring(0, (iSL1 - 1)))
+                        LogEvent("sLine: " & sLine)
                         arrText.Add(sTemplate)
                         idx += 1
                         sTemplate = sr.ReadLine
-                        If sTemplate.Substring(0, (m - 1)).Equals(strLine) Then
-                            LogEvent("idx: " & idx)
-                            idx = 0
-                            arrText = New ArrayList()
+                        LogEvent("sTemplate: " & sTemplate)
+                        If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
+                            Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
+                        End If
+                        If sTemplate.Length >= iSL1 Then
+                            If sTemplate.Substring(0, (iSL1 - 1)).Equals(strLine) Then
+                                LogEvent("idx: " & idx)
+                                idx = 0
+                                arrText = New ArrayList()
+                            End If
                         End If
                     Loop
                     'Do While Not sTemplate.Contains("sLine")
                     '    If sTemplate.Contains(sLine) Then
-                    '        m = InStr(sTemplate, sLine)
+                    '        iSL1 = InStr(sTemplate, sLine)
                     '    End If
                     'Loop
+                    sTemplate = sr.ReadLine
+                    LogEvent("sTemplate: " & sTemplate)
+                    If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
+                        Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
+                    End If
                     idx = 0
                     arrText = New ArrayList()
                 End If
@@ -445,19 +466,23 @@ Public Class MergeLabelCode
                     'Else
                     'End If
                     LogEvent("sTemplate: " & sTemplate)
-                    n = InStr(sTemplate, "If")
+                    iSL2 = InStr(sTemplate, "If")
                     sLine = ""
-                    n += Len("If")
-                    sLine = sTemplate.Substring(0, n)
-                    LogEvent("m: " & m & " n: " & n & " sLine: " & sLine)
+                    iSL2 += Len("If")
+                    sLine = sTemplate.Substring(0, iSL2)
+                    LogEvent("iSL1: " & iSL1 & " iSL2: " & iSL2 & " sLine: " & sLine)
                     Dim arrText As New ArrayList()
                     'Do While Not sTemplate.Contains("sLine")
                     LogEvent("sTemplate: " & sTemplate)
                     arrText.Add(sTemplate)
                     idx += 1
                     'sTemplate = sr.ReadLine
+                    'LogEvent("sTemplate: " & sTemplate)
+                    'If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
+                    '    Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
+                    'End If
                     If sTemplate.Contains(sLine) Then
-                        m = InStr(sTemplate, sLine)
+                        iSL1 = InStr(sTemplate, sLine)
                     End If
                     'Loop
                     idx = 0
@@ -465,7 +490,7 @@ Public Class MergeLabelCode
                     sLine = Replace(sLine, "Else", "Else If")
                     'Do While Not sTemplate.Contains("sLine")
                     If sTemplate.Contains(sLine) Then
-                        m = InStr(sTemplate, sLine)
+                        iSL1 = InStr(sTemplate, sLine)
                     End If
                     'Loop
                     idx = 0
