@@ -6,9 +6,9 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{3A04D68D-7EF5-44E6-BE4F-BC0F2679DF17}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <StartupObject>MergeLabelCode.My.MyApplication</StartupObject>
-    <RootNamespace>MergeLabelCode</RootNamespace>
-    <AssemblyName>MergeLabelCode</AssemblyName>
+    <StartupObject>LabelDetails.My.MyApplication</StartupObject>
+    <RootNamespace>LabelDetails</RootNamespace>
+    <AssemblyName>LabelDetails</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -36,7 +36,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>MergeLabelCode.xml</DocumentationFile>
+    <DocumentationFile>LabelDetails.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -46,7 +46,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>MergeLabelCode.xml</DocumentationFile>
+    <DocumentationFile>LabelDetails.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -65,7 +65,7 @@
     <ManifestCertificateThumbprint>23C9A207BE34248DCAD0D40AE1C2031D16D72DA9</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>MergeLabelCode_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>LabelDetails_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -107,11 +107,11 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MergeLabelCode.vb">
+    <Compile Include="LabelDetails.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MergeLabelCode.Designer.vb">
-      <DependentUpon>MergeLabelCode.vb</DependentUpon>
+    <Compile Include="LabelDetails.Designer.vb">
+      <DependentUpon>LabelDetails.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="My Project\AssemblyInfo.vb" />
@@ -131,8 +131,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="MergeLabelCode.resx">
-      <DependentUpon>MergeLabelCode.vb</DependentUpon>
+    <EmbeddedResource Include="LabelDetails.resx">
+      <DependentUpon>LabelDetails.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
@@ -153,7 +153,7 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
     <None Include="App.config" />
-    <None Include="MergeLabelCode_TemporaryKey.pfx" />
+    <None Include="LabelDetails_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OMEGADB>
+
+<!-- OMEGA LabelDetails Print Application Initializations -->
+    <AppVersion>1.0.0.1</AppVersion>
+
+<!-- LabelDetails Pickup for LabelDetails Server -->
+    <AppDir>C:\Apps\OmegaLabels</AppDir>
+
+<!-- LabelDetails Spec files Html -->
+    <AppXmlDir>C:\My Web Sites\LABELS</AppXmlDir>
+
+</OMEGADB>

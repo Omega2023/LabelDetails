@@ -8,10 +8,10 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("MergeLabelCode")> 
+<Assembly: AssemblyTitle("LabelDetails")> 
 <Assembly: AssemblyDescription("Remove Lines")> 
 <Assembly: AssemblyCompany("Omega Enviromental Technologies")> 
-<Assembly: AssemblyProduct("MergeLabelCode")> 
+<Assembly: AssemblyProduct("LabelDetails")> 
 <Assembly: AssemblyCopyright("Copyright © Omega Enviromental Technologies 2018")> 
 <Assembly: AssemblyTrademark("Omega Enviromental Technologies")> 
 
