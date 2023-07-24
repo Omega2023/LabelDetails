@@ -7,7 +7,7 @@
 <!-- LabelDetails Pickup for LabelDetails Server -->
     <AppDir>C:\Apps\OmegaLabels</AppDir>
 
-<!-- LabelDetails Spec files Html -->
+<!-- LabelDetails Spec files Xml -->
     <AppXmlDir>C:\My Web Sites\LABELS</AppXmlDir>
 
 </OMEGADB>

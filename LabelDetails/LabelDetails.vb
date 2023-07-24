@@ -35,18 +35,11 @@ Public Class LabelDetails
     Dim AppLog As String = "LabelDetails.txt"
     Dim MyApplication As String = "LabelDetails"
     Dim AppDir As String = "C:\Apps\OmegaLabels\"
-    Dim LabelDetailsData As String = "LabelDetailsData.txt"
-    Dim LabelDetailsKits As String = "LabelDetailsKitPage.txt"
+    Dim LabelDetailsData As String = "C:\My Web Sites\LabelDetailsData.txt"
+    Dim AppXmlDir As String = "" 'App Xml File Folder
 
     'LabelDetails.xml file initializations
     Dim AppVersion As String = "1.0.0.0"
-
-#If DEBUG Then
-    'debug use C:\ ...
-    Dim AppXmlDir As String = "C:\My Web Sites\LABELS\" 'App Html File Folder
-#Else
-    Dim AppXmlDir As String = "C:\My Web Sites\LABELS\" 'App Html File Folder
-#End If
 
     Private Sub LabelDetails_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Dim status As Boolean = False
@@ -301,7 +294,7 @@ Public Class LabelDetails
     End Sub
 
     Private Sub btnProcess_Click(sender As Object, e As EventArgs) Handles btnProcess.Click
-        Dim fn As String 'Create full filenames
+        Dim fn As String = "" 'Create full filenames
         Dim ArchiveDir As New DirectoryInfo(TextBoxPath.Text)
         Dim sTemplate As String = ""
         Dim tmpFN As String = ""
@@ -311,21 +304,18 @@ Public Class LabelDetails
 
         btnProcess.BackColor = Color.OrangeRed
 
-        'ArchiveDir = TextBoxPath.Text.ToString()
-
         Try
             'Reset the ProgressBar
             Me.ProgressBar1.Visible = True
             Me.ProgressBar1.Value = 0
             Me.ProgressBar1.Minimum = 0
             Me.ProgressBar1.Maximum = ArchiveDir.GetFiles.Length
+            tmpFN = LabelDetailsData
             For Each f_info As FileInfo In ArchiveDir.GetFiles() 'Oldest file is tested first
                 fn = Path.Combine(ArchiveDir.ToString(), f_info.ToString())
                 If fn.Contains("tmp") Then Continue For
                 LogEvent("Filename " & vbLf & fn)
-                If fn.Contains("html") Then tmpFN = Replace(fn, "html", "tmp")
                 If Not File.Exists(tmpFN) Then
-                    tmpFN = fn
                     Dim fStream As FileStream = File.Create(tmpFN)
                     fStream.Flush()
                     fStream.Close()
@@ -336,54 +326,26 @@ Public Class LabelDetails
                 Do While sr.Peek() >= 0
                     sTemplate = sr.ReadLine
                     If sTemplate.Trim().Equals(String.Empty) Then
-                        'Set the value of ProgressBar
-                        If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
-                            Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
-                        End If
                         Continue Do
                     End If
-
-                    If sTemplate.Contains("HTTrack") Then 'is HTTrack in file?
-                        'LogEvent("sTemplate HTTrack: " & sTemplate)
-                        If sTemplate.Contains("Mirrored") Then
-                            'Set the value of ProgressBar
-                            If Me.ProgressBar1.Value < Me.ProgressBar1.Maximum Then
-                                Me.ProgressBar1.Value = Me.ProgressBar1.Value + 1
-                            End If
-                            Continue Do
-                        Else
-                            sTemplate = Replace(sTemplate, "<!-- Added by HTTrack -->", "")
-                            sTemplate = Replace(sTemplate, "<!-- /Added by HTTrack -->", "")
-                        End If
-                        'WriteLine
-                        WriteOutLine(sTemplate.TrimEnd, tmpFN)
-                        TextBoxPath.AppendText(sTemplate.Trim() & vbCrLf) 'Append
-                        'LogEvent("sTemplate: " & sTemplate)
-                    ElseIf sTemplate.Contains("><") Then 'try next row
-                        'LogEvent("sTemplate Tags: " & sTemplate)
-                        Dim TemplateParts() = Split(sTemplate, "><")
-                        LogEvent("TemplateParts Length " & TemplateParts.Length)
-                        Dim idx As Integer = 0
-                        For idx = 0 To TemplateParts.Length - 1
-                            If Not TemplateParts(idx).Trim.Equals(String.Empty) Then
-                                LogEvent("TemplateParts (" & idx & ")" & " of " & TemplateParts.Length & " " & TemplateParts(idx).Trim())
-                                Dim sTemp = "<" & TemplateParts(idx).Trim() & ">"
-                                If idx.Equals(0) Then sTemp = Replace(sTemp, "<<", "<")
-                                If TemplateParts.Length > 0 Then
-                                    If idx.Equals(TemplateParts.Length - 1) Then sTemp = Replace(sTemp, ">>", ">")
-                                End If
-                                inFile += 1
-                                WriteOutLine(sTemp.TrimEnd, tmpFN)
-                                TextBoxPath.AppendText(sTemp.TrimEnd & vbCrLf) 'Append
-                            End If
-                        Next
-                        LogEvent("Remove Lines Candiates(" & numCandiates & ") " & Candiates(numCandiates))
-                        numCandiates += 1
-                    Else
-                        WriteOutLine(sTemplate.TrimEnd, tmpFN)
-                        'TextBoxPath.AppendText(sTemplate.TrimEnd & vbCrLf) 'Append
-                        'LogEvent("sTemplate: " & sTemplate)
+                    If sTemplate.Contains("xml version=") Then
+                        Continue Do
                     End If
+                    If sTemplate.Contains("DataSet1") Then
+                        Continue Do
+                    End If
+                    If sTemplate.Contains(", ") Then
+                        sTemplate = Replace(sTemplate, ", ", " ")
+                    End If
+                    If sTemplate.Contains(",") Then
+                        sTemplate = Replace(sTemplate, ",", " ")
+                    End If
+                    If Not sTemplate.Trim().Contains("<OMEGATemplate>") Then
+                        sTemplate = "," & sTemplate.Trim()
+                    End If
+
+                    WriteOutLine(sTemplate.Trim(), tmpFN)
+                    'LogEvent("sTemplate: " & sTemplate)
                 Loop
                 sr.Close()
                 'Set the value of ProgressBar
